@@ -2,6 +2,7 @@
 `include "acc.v"
 `include "alu.v"
 `include "decoder.v"
+`include "hex_disp.v"
 `include "pc.v"
 `include "prog_mem.v"
 `include "reg_file.v"
@@ -10,7 +11,9 @@ module top (
     input clk,
     input [7:0] user_in,
     output [7:0] acc_v,
-    output cy
+    output cy,
+    output [6:0] seg_ip_h,
+    output [6:0] seg_ip_l
 );
     wire [4:0] ip;
     wire [5:0] inst;
@@ -28,4 +31,7 @@ module top (
     reg_file rf(.clk(clk), .a(reg_a), .ce(ce_reg), .in(acc_v), .out(reg_out), .user_in(user_in));
     acc accumulator(.clk(clk), .ce(ce_a), .in(alu_out), .out(acc_v));
     alu alu_(.clk(clk), .op(op), .ce_cy(ce_cy), .in_a(acc_v), .in_r(reg_out), .result(alu_out), .cy(cy));
+
+    hex_disp hex_ip_h(.data({3'd0, ip[4]}), .seg(seg_ip_h));
+    hex_disp hex_ip_l(.data(ip[3:0]), .seg(seg_ip_l));
 endmodule

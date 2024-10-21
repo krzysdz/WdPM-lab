@@ -1,1 +1,4 @@
 /aaa.hex
+
+.mypy_cache/
+*.pyc

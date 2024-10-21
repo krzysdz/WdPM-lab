@@ -3,15 +3,9 @@
 1B // LD R3 ; load user input (b)
 1D // ST R1 ; save it to R1
 00 // ADD R0 ; acc = a + b
+//; This will give wrong result if the carry flag is set
 05 // SUB R1 ; acc = a
-11 // XOR R1 ; clear acc
-3F
-3F
-3F
-3F
-3F
-3F
-3F
+10 // XOR R0 ; clear acc
 3F
 3F
 3F

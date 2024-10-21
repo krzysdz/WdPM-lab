@@ -45,7 +45,7 @@ def process_file(filename: str, out_f: str = "aaa.hex"):
     ass_l = [parse_line(l) for l in source_lines]
     ass_l = [l for l in ass_l if l is not None]
 
-    n_inst = sum(1 if l.startswith("//") else 0 for l in ass_l)
+    n_inst = sum(1 if not l.startswith("//") else 0 for l in ass_l)
     assert n_inst <= 32
     ass_l.extend(["3F"] * (32 - n_inst))
 

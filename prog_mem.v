@@ -6,7 +6,9 @@ module prog_mem (
 );
     reg [5:0] mem [0:31];
 
-    $readmemh("aaa.hex", mem);
+    initial begin
+        $readmemh("aaa.hex", mem);
+    end
 
     assign inst = mem[addr];
 endmodule

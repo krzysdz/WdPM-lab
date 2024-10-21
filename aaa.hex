@@ -1,0 +1,39 @@
+1B // LD R3 ; load user input (a)
+1C // ST R0 ; save it to R0
+1B // LD R3 ; load user input (b)
+1D // ST R1 ; save it to R1
+00 // ADD R0 ; acc = a + b
+05 // SUB R1 ; acc = a
+11 // XOR R1 ; clear acc
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F
+3F

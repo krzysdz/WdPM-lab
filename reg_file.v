@@ -1,3 +1,5 @@
+`ifndef REG_FILE_V
+`define REG_FILE_V
 `default_nettype none
 
 module reg_file (
@@ -39,3 +41,4 @@ module reg_file (
         end
     end
 endmodule
+`endif

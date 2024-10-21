@@ -1,3 +1,5 @@
+`ifndef ALU_V
+`define ALU_V
 `default_nettype none
 
 module alu (
@@ -33,3 +35,4 @@ module alu (
             endcase
     end
 endmodule
+`endif

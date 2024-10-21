@@ -1,3 +1,5 @@
+`ifndef DECODER_V
+`define DECODER_V
 `default_nettype none
 
 module decoder (
@@ -14,3 +16,4 @@ module decoder (
     assign ce_a = inst[4:2] != 3'b111;
     assign ce_cy = inst[4:3] != 2'b11;
 endmodule
+`endif

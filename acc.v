@@ -1,3 +1,5 @@
+`ifndef ACC_V
+`define ACC_V
 `default_nettype none
 
 module acc (
@@ -15,3 +17,4 @@ module acc (
             out <= in;
     end
 endmodule
+`endif

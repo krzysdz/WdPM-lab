@@ -1,3 +1,5 @@
+`ifndef PC_V
+`define PC_V
 `default_nettype none
 
 module pc (
@@ -12,3 +14,4 @@ module pc (
         addr <= addr + 5'd1;
     end
 endmodule
+`endif

@@ -1,3 +1,5 @@
+`ifndef PROG_MEM_V
+`define PROG_MEM_V
 `default_nettype none
 
 module prog_mem (
@@ -12,3 +14,4 @@ module prog_mem (
 
     assign inst = mem[addr];
 endmodule
+`endif

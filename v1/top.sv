@@ -43,7 +43,7 @@ module top (
     logic flag_s;
     logic flag_o;
 
-    pc counter(.clk(clk), .is_jump(is_jump), .jump_cond(jump_cond), .flag_z(flag_z), .flag_s(flag_s), .flag_o(flag_o), .jump_addr(operand[7:0]), .addr(ip));
+    pc counter(.clk(clk), .is_jump(is_jump), .jump_cond(jump_cond), .flag_z(flag_z), .flag_s(flag_s), .flag_o(flag_o), .jump_addr(alu_in), .addr(ip));
     prog_mem pmem(.addr(ip), .inst(inst));
     decoder id(.inst(inst), .op(op), .operand(operand), .data_src(data_src), .ce_reg(ce_reg), .ce_mem(ce_mem), .ce_a(ce_a), .ce_cy(ce_cy), .ce_bank(ce_bank), .is_jump(is_jump), .jump_cond(jump_cond));
     reg_file rf(.clk(clk), .a(operand[2:0]), .ce(ce_reg), .in(acc_v), .out(reg_out), .user_in(user_in));

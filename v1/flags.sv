@@ -3,6 +3,7 @@
 `default_nettype none
 
 module flags (
+    input rst,
     input clk,
     input ce_cy,
     input cy_new,
@@ -13,8 +14,11 @@ module flags (
     output zf,
     output sf
 );
-    always_ff @(posedge clk) begin
-        if (ce_cy) begin
+    always_ff @(posedge clk, posedge rst) begin
+        if (rst) begin
+            cy <= 0;
+            ov <= 0;
+        end else if (ce_cy) begin
             cy <= cy_new;
             ov <= ov_new;
         end

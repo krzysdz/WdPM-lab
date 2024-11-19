@@ -18,7 +18,7 @@ module alu_in_mux #(
             SRC_IMMEDIATE: data = id_operand;
             SRC_INDIRECT: data = mem_data;
             SRC_REG: data = rf_data;
-            default: data = 8'hxx;
+            default: data = {WIDTH{1'bx}};
         endcase
     end
 endmodule

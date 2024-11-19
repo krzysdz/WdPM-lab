@@ -3,7 +3,9 @@
 `default_nettype none
 `include "enums.svh"
 
-module pc (
+module pc #(
+    parameter int A_WIDTH = 8
+) (
     input rst,
     input clk,
     input is_jump,
@@ -11,8 +13,8 @@ module pc (
     input flag_z, // zero
     input flag_s, // sign
     input flag_o, // overflow
-    input [7:0] jump_addr,
-    output reg [7:0] addr
+    input [A_WIDTH-1:0] jump_addr,
+    output reg [A_WIDTH-1:0] addr
 );
     wire incremented = addr + 5'd1;
 

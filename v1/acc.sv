@@ -2,12 +2,14 @@
 `define ACC_SV
 `default_nettype none
 
-module acc (
+module acc #(
+    parameter int WIDTH = 8
+) (
     input rst,
     input clk,
     input ce,
-    input [7:0] in,
-    output reg [7:0] out
+    input [WIDTH-1:0] in,
+    output reg [WIDTH-1:0] out
 );
     always_ff @(posedge clk, posedge rst) begin
         if (rst)

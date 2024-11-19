@@ -2,13 +2,15 @@
 `define FLAGS_SV
 `default_nettype none
 
-module flags (
+module flags #(
+    parameter int WIDTH = 8
+) (
     input rst,
     input clk,
     input ce_cy,
     input cy_new,
     input ov_new,
-    input [7:0] acc,
+    input [WIDTH-1:0] acc,
     output reg cy,
     output reg ov,
     output zf,
@@ -25,6 +27,6 @@ module flags (
     end
 
     assign zf = acc == 0;
-    assign sf = acc[7];
+    assign sf = acc[WIDTH-1];
 endmodule
 `endif

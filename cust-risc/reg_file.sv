@@ -25,7 +25,7 @@ module reg_file #(
                 registers[i] <= 0;
         end
         else if (rd_we && rd != 0)
-                registers[rd] <= rd_data;
+            registers[rd] <= rd_data;
     end
 endmodule
 `endif

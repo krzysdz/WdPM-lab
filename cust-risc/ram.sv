@@ -18,7 +18,7 @@ module ram #(
     input [WIDTH-1:0] addr_b,
     output reg [WIDTH-1:0] data_b
 );
-    initial assert(WIDTH == BYTES * 8);
+    initial assert (WIDTH == BYTES * 8);
 
     // Vendor-specific memory and port A
 `ifdef VENDOR_ALTERA // Quartus

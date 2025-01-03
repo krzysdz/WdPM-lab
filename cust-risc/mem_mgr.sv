@@ -8,7 +8,7 @@ module mem_mgr #(
     parameter int BYTES = WIDTH / 8
 ) (
     input clk,
-    input clr,
+    input rst,
     // Write port
     input [WIDTH-1:0] wr_addr,
     input we,
@@ -22,7 +22,6 @@ module mem_mgr #(
     input rd_unsigned,
     output [WIDTH-1:0] rd_data,
     output rd_misaligned,
-    output must_wait, // The read request can't be served now, block the pipeline
     // Instruction read port
     input [WIDTH-1:0] inst_addr,
     output [WIDTH-1:0] inst_data
@@ -149,7 +148,7 @@ module mem_mgr #(
     end
 
     always_ff @(posedge clk) begin
-        if (clr || clear_delay_registers) begin
+        if (rst || clear_delay_registers) begin
             delayed_wr_bytes <= 0;
         end else begin
             if (update_delay_registers) begin

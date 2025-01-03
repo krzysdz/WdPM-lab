@@ -1,0 +1,7 @@
+- fix endianness
+- fix jumps and branches
+- handle unaligned memory access
+- check if it can be simulated
+- check for more obvious bugs
+- move memory out and allow memory mapped i/o
+- handle illegal instructions?

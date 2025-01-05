@@ -1,6 +1,5 @@
 `ifndef ALU_SV
 `define ALU_SV
-`default_nettype none
 
 module alu #(
     parameter int WIDTH = 8

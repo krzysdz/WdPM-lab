@@ -1,6 +1,5 @@
 `ifndef REG_FILE_SV
 `define REG_FILE_SV
-`default_nettype none
 
 module reg_file #(
     parameter int WIDTH = 8,

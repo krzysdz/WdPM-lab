@@ -1,6 +1,5 @@
 `ifndef MEM_BANK_REG_SV
 `define MEM_BANK_REG_SV
-`default_nettype none
 
 module mem_bank_reg #(
     parameter int WIDTH = 2

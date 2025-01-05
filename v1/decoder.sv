@@ -1,6 +1,5 @@
 `ifndef DECODER_V
 `define DECODER_V
-`default_nettype none
 `include "enums.svh"
 
 module decoder (

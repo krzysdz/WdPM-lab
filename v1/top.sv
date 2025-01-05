@@ -1,4 +1,3 @@
-`default_nettype none
 `include "acc.sv"
 `include "alu.sv"
 `include "alu_in_mux.sv"

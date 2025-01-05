@@ -1,6 +1,5 @@
 `ifndef MEM_SV
 `define MEM_SV
-`default_nettype none
 `include "enums.svh"
 
 module mem #(

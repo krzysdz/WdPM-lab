@@ -1,6 +1,5 @@
 `ifndef HEX_DISP_SV
 `define HEX_DISP_SV
-`default_nettype none
 
 module hex_disp (
     input[3:0] data,

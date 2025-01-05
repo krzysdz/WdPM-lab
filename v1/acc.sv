@@ -1,6 +1,5 @@
 `ifndef ACC_SV
 `define ACC_SV
-`default_nettype none
 
 module acc #(
     parameter int WIDTH = 8

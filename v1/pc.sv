@@ -1,6 +1,5 @@
 `ifndef PC_SV
 `define PC_SV
-`default_nettype none
 `include "enums.svh"
 
 module pc #(

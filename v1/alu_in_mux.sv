@@ -1,6 +1,5 @@
 `ifndef ALU_IN_SV
 `define ALU_IN_SV
-`default_nettype none
 `include "enums.svh"
 
 module alu_in_mux #(

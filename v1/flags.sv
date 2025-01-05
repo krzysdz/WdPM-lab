@@ -1,6 +1,5 @@
 `ifndef FLAGS_SV
 `define FLAGS_SV
-`default_nettype none
 
 module flags #(
     parameter int WIDTH = 8

@@ -1,6 +1,5 @@
 `ifndef PROG_MEM_SV
 `define PROG_MEM_SV
-`default_nettype none
 
 module prog_mem #(
     parameter int A_WIDTH = 8,

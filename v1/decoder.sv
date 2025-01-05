@@ -14,7 +14,9 @@ module decoder (
     output ce_cy,
     output ce_bank,
     output is_jump,
-    output jump_t jump_cond
+    output jump_t jump_cond,
+    output call,
+    output ret
 );
     // Instruction format
     // ==============================
@@ -31,7 +33,8 @@ module decoder (
     // - for 1x: 3-bit REGISTER [2:0] (10 - [Rx], 11 - Rx)
     // Unused A/D/R bits can be anything
 
-    logic [3:0] full_opcode = inst[13:10];
+    logic [3:0] full_opcode;
+    assign full_opcode = inst[13:10];
     // ALU opcode, operations with top bit 0 are ALU operations
     assign op = full_opcode[2:0];
     assign operand = inst[9:0];
@@ -44,10 +47,13 @@ module decoder (
     assign ce_a = full_opcode[3] == 0 && full_opcode != 0;
     // Update carry and overflow flags for all ALU operations except LD (0001) and NOP
     assign ce_cy = full_opcode[3:2] == 2'b01 || full_opcode[3:1] == 3'b001;
-    // Update bank register using CHB (1101, 111x)
-    assign ce_bank = full_opcode == 4'b1101 || full_opcode[3:1] == 3'b111;
+    // Update bank register using CHB (1101)
+    assign ce_bank = full_opcode == 4'b1101;
     // Jumps are 10xx, where the lower 2 bits are jump type
-    assign is_jump = full_opcode[3:2] == 2'b10;
-    assign jump_cond = jump_t'(full_opcode[1:0]);
+    // Call (1110) and ret (1111) are handled like unconditional jump, but use return stack
+    assign is_jump = full_opcode[3:2] == 2'b10 || full_opcode[3:1] == 3'b111;
+    assign jump_cond = full_opcode[3:1] == 3'b111 ? JMP : jump_t'(full_opcode[1:0]);
+    assign call = full_opcode == 4'b1110;
+    assign ret = full_opcode == 4'b1111;
 endmodule
 `endif

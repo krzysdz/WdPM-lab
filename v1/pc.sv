@@ -14,9 +14,10 @@ module pc #(
     input flag_s, // sign
     input flag_o, // overflow
     input [A_WIDTH-1:0] jump_addr,
-    output reg [A_WIDTH-1:0] addr
+    output reg [A_WIDTH-1:0] addr,
+    output [A_WIDTH-1:0] incremented
 );
-    wire incremented = addr + 5'd1;
+    assign incremented = addr + 5'd1;
 
     always_ff @(posedge clk, posedge rst) begin
         if (rst)

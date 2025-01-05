@@ -21,7 +21,7 @@ module reg_file #(
 
     always_ff @(posedge clk, posedge rst) begin
         if (rst) begin
-            for (int i = 0; i < N_REG; i = i + 1) begin
+            for (int i = 0; i < N_REG - 1; i = i + 1) begin
                 regs[i] <= 0;
             end
         end else if (ce && a != ExtReg)

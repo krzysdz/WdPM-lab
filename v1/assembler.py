@@ -1,12 +1,18 @@
-from typing import Optional
-from sys import argv
+import re
+from dataclasses import dataclass
 from enum import Enum
+from string import ascii_uppercase, digits
+from sys import argv
+from typing import Literal, Optional
 
 REG_COUNT = 8
 DATA_WIDTH = 8
 ADDR_WIDTH = 10
 MAX_INSTRUCTIONS = 2**8
 NOP_PAD = "0000"
+LABEL_ALPHA = ascii_uppercase + digits + "_"
+
+REG_REGEX = re.compile(r"^R\d+$", flags=re.ASCII)
 
 
 class Addressing(Enum):
@@ -14,6 +20,34 @@ class Addressing(Enum):
     IMMEDIATE = 1
     REGISTER = 2
     INDIRECT = 3
+
+
+@dataclass
+class ASMLine:
+    address: int
+    comment: Optional[str] = None
+    inst: Optional[str] = None
+    op: Optional[int] = None
+    ref_label: Optional[str] = None
+
+    def as_hex(self) -> Optional[str]:
+        result: str | None = None
+        if self.op is not None:
+            result = f"{self.op:0>4X}"
+        comment_part: str | None = None
+        if self.inst is not None:
+            comment_part = self.inst
+        if self.comment is not None:
+            if comment_part:
+                comment_part = comment_part + " ; " + self.comment
+            else:
+                comment_part = "; " + self.comment
+        if comment_part is not None:
+            if result is not None:
+                result = result + " // " + comment_part
+            else:
+                result = "// " + comment_part
+        return result
 
 
 def r2i(reg: str) -> int:
@@ -33,12 +67,21 @@ def val_checked_as_unsigned(val: str, max_width: int) -> int:
     return r
 
 
-def extract_operand(operand_str: Optional[str]) -> tuple[Addressing, int]:
+def extract_operand(
+    operand_str: Optional[str], known_labels: dict[str, int]
+) -> tuple[Addressing, int | str] | tuple[Literal[Addressing.IMMEDIATE], str]:
     if operand_str is None:
         return Addressing.DIRECT, 0
+    is_reg = REG_REGEX.fullmatch(operand_str) is not None
+    possible_label = (
+        not is_reg
+        and all(c in LABEL_ALPHA for c in operand_str)
+        and not operand_str[0].isdigit()
+    )
     match operand_str[0]:
         case "R":
-            return Addressing.REGISTER, r2i(operand_str)
+            if not possible_label:
+                return Addressing.REGISTER, r2i(operand_str)
         case "[":
             assert operand_str[-1] == "]"
             return Addressing.INDIRECT, r2i(operand_str[1:-1])
@@ -51,16 +94,31 @@ def extract_operand(operand_str: Optional[str]) -> tuple[Addressing, int]:
                 operand_str[1:], ADDR_WIDTH
             )
         case _:
-            raise RuntimeError(f"Incorrect addressing mode for operand {operand_str}")
+            if not possible_label:
+                raise RuntimeError(
+                    f"Incorrect addressing mode for operand {operand_str}"
+                )
+    assert possible_label
+    return Addressing.IMMEDIATE, known_labels.get(operand_str, operand_str)
 
 
-def parse_line(line: str) -> Optional[str]:
+def parse_line(
+    line: str, known_labels: dict[str, int], current_addr: int
+) -> tuple[Optional[ASMLine], int]:
     ic_parts = [p.strip() for p in line.split(";", maxsplit=1)]
     inst, comm = ic_parts if len(ic_parts) == 2 else (ic_parts[0], None)
+
+    label_end = inst.find(":")
+    if label_end > 0:
+        label = inst[:label_end].rstrip().upper()
+        inst = inst[label_end + 1 :].lstrip()
+        assert label not in known_labels
+        known_labels[label] = current_addr
+
     inst_parts = [p.strip() for p in inst.upper().split()]
     assert len(inst_parts) <= 2
     operand_type, operand_value = extract_operand(
-        inst_parts[1] if len(inst_parts) == 2 else None
+        inst_parts[1] if len(inst_parts) == 2 else None, known_labels
     )
 
     match inst_parts:
@@ -103,11 +161,16 @@ def parse_line(line: str) -> Optional[str]:
         case ["RET"]:
             opc = 0b1111
         case _:
-            return f"//; {comm}" if comm else None
+            return ASMLine(current_addr, comm) if comm else None, current_addr
 
-    result = operand_type.value << 14 | opc << 10 | operand_value
-    op_str = f"{result:0>4X} // {inst}"
-    return op_str if comm is None else f"{op_str} ; {comm}"
+    result = operand_type.value << 14 | opc << 10
+    if isinstance(operand_value, str):
+        return (
+            ASMLine(current_addr, comm, inst, result, operand_value),
+            current_addr + 1,
+        )
+    result |= operand_value
+    return ASMLine(current_addr, comm, inst, result), current_addr + 1
 
 
 def process_file(filename: str, out_f: str = "asm.hex"):
@@ -115,15 +178,28 @@ def process_file(filename: str, out_f: str = "asm.hex"):
         source = sf.read()
 
     source_lines = [l.strip() for l in source.splitlines()]
-    ass_l = [parse_line(l) for l in source_lines]
-    ass_l = [l for l in ass_l if l is not None]
+    known_labels: dict[str, int] = {}
+    current_address = 0
+    ass_l: list[ASMLine] = []
+    for l in source_lines:
+        line, current_address = parse_line(l, known_labels, current_address)
+        if line:
+            ass_l.append(line)
+    # Fixup labels
+    for al in ass_l:
+        if al.ref_label is not None:
+            assert al.ref_label in known_labels
+            assert al.op is not None
+            al.op |= known_labels[al.ref_label]
+            al.ref_label = None
 
-    n_inst = sum(1 if not l.startswith("//") else 0 for l in ass_l)
-    assert n_inst <= MAX_INSTRUCTIONS
-    ass_l.extend([NOP_PAD] * (MAX_INSTRUCTIONS - n_inst))
+    assert current_address <= MAX_INSTRUCTIONS
+    ass_hex = [al.as_hex() for al in ass_l]
+    ass_hex = [l for l in ass_hex if l is not None]
+    ass_hex.extend([NOP_PAD] * (MAX_INSTRUCTIONS - current_address))
 
     with open(out_f, "wt") as of:
-        of.write("\n".join(ass_l))
+        of.write("\n".join(ass_hex))
 
 
 if __name__ == "__main__":

@@ -25,7 +25,6 @@ module alu_acc_flags #(
     output flag_s,               // sign flag (comb: f(acc) = acc == 0)
     output flag_o                // overflow flag (registered)
 );
-    logic [WIDTH-1:0] alu_in;
     logic [WIDTH-1:0] alu_out;
     logic new_cy;
     logic new_ov;

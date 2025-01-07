@@ -1,37 +1,37 @@
-8407 // LD R7 ; load a
-B005 // ST R5 ; save a in R5
-8407 // LD R7 ; load b
-B006 // ST R6 ; save b in R6
+C407 // LD R7 ; load a
+F005 // ST R5 ; save a in R5
+C407 // LD R7 ; load b
+F006 // ST R6 ; save b in R6
 5800 // OR #0 ; clear carry flag
-8C05 // SUB R5 ; compare a (R5) and b (ACC)
+CC05 // SUB R5 ; compare a (R5) and b (ACC)
 6417 // JZ end ; a == b => end
 6C0F // JL gcd_bla ; b < a
-8406 // LD R6 ; a < b => b = b % a
-B001 // ST R1
-8405 // LD R5
-B002 // ST R2
+C406 // LD R6 ; a < b => b = b % a
+F001 // ST R1
+C405 // LD R5
+F002 // ST R2
 7818 // CALL mod
-B006 // ST R6 ; no need to load b
+F006 // ST R6 ; no need to load b
 6004 // JMP loop_gcd
-8405 // LD R5 ; b < a => a = a % b
-B001 // ST R1
-8406 // LD R6
-B002 // ST R2
+C405 // LD R5 ; b < a => a = a % b
+F001 // ST R1
+C406 // LD R6
+F002 // ST R2
 7818 // CALL mod
-B005 // ST R5
-8406 // LD R6 ; load b to acc
+F005 // ST R5
+C406 // LD R6 ; load b to acc
 6004 // JMP loop_gcd
 6017 // JMP end ; final infinite loop
 // ; function u8 mod(u8 a @ R1, u8 b @ R2)
 // ; ACC = R1 % R2
-8401 // LD R1
+C401 // LD R1
 5800 // OR #0 ; clear carry flag
-8C02 // SUB R2
+CC02 // SUB R2
 6420 // JZ mod_end ; a ≡ 0 (mod b)
 6C1E // JL mod_pend ; a ≡ acc + b (mod b) - acc is negative, add R2 to get result
 6019 // JMP mod_loop
 5800 // OR #0 ; clear carry flag
-8802 // ADD R2
+C802 // ADD R2
 3C00 // RET
 0000
 0000

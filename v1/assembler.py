@@ -18,8 +18,8 @@ REG_REGEX = re.compile(r"^R\d+$", flags=re.ASCII)
 class Addressing(Enum):
     DIRECT = 0
     IMMEDIATE = 1
-    REGISTER = 2
-    INDIRECT = 3
+    INDIRECT = 2
+    REGISTER = 3
 
 
 @dataclass

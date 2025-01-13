@@ -61,9 +61,9 @@ def val_checked_as_unsigned(val: str, max_width: int) -> int:
     r = int(val, base=0)
     if r < 0:
         r = -r
-        assert r.bit_length() < max_width - 1
+        assert r.bit_length() < max_width
         r = 2**max_width - r
-    assert r.bit_length() < max_width
+    assert r.bit_length() <= max_width
     return r
 
 

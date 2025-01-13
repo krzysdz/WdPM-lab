@@ -1,28 +1,27 @@
 start:    LD R7        ; load a
           ST R5        ; save a in R5
+          ; TEST - do random things to memory to prevent some optimizations
+          ST @0xAB     ; save a somewhere in memory (constant address)
+          ST [R5]      ; save somewhere random
+          CHB [R7]     ; randomly change bank
+          LD [R7]      ; perform random memory load
+          ; END TEST
           LD R7        ; load b
           ST R6        ; save b in R6
 
-loop_gcd: OR #0        ; clear carry flag
-          SUB R5       ; compare a (R5) and b (ACC)
-          JZ end       ; a == b => end
-          JL gcd_bla   ; b < a
-          LD R6        ; a < b => b = b % a
-          ST R1
+loop_gcd: JZ pre_end   ; b == 0 => end
+          ST R4        ; use R4 as temp, t = b
+          ST R2        ; arg2 = b
           LD R5
-          ST R2
-          CALL mod
-          ST R6        ; no need to load b
-          JMP loop_gcd
-gcd_bla:  LD R5        ; b < a => a = a % b
-          ST R1
-          LD R6
-          ST R2
-          CALL mod
-          ST R5
+          ST R1        ; arg1 = a
+          CALL mod     ; acc = mod(a, b)
+          ST R6        ; b = mod(a, b)
+          LD R4
+          ST R5        ; a = t
           LD R6        ; load b to acc
           JMP loop_gcd
 
+pre_end:  LD R5        ; load result to acc
 end:      JMP end      ; final infinite loop
 
 ; function u8 mod(u8 a @ R1, u8 b @ R2)

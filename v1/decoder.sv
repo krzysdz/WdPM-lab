@@ -51,7 +51,7 @@ module decoder (
     // Jumps are 10xx, where the lower 2 bits are jump type
     // Call (1110) and ret (1111) are handled like unconditional jump, but use return stack
     assign is_jump = full_opcode[3:2] == 2'b10 || full_opcode[3:1] == 3'b111;
-    assign jump_cond = full_opcode[3:1] == 3'b111 ? JMP : jump_t'(full_opcode[1:0]);
+    assign jump_cond = jump_t'(full_opcode[3:1] == 3'b111 ? JMP : jump_t'(full_opcode[1:0]));
     assign call = full_opcode == 4'b1110;
     assign ret = full_opcode == 4'b1111;
 endmodule

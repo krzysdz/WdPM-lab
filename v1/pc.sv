@@ -27,7 +27,7 @@ module pc #(
                     JMP: addr <= jump_addr;
                     JZ: addr <= flag_z ? jump_addr : incremented;
                     JNZ: addr <= flag_z ? incremented : jump_addr;
-                    JL: addr <= (flag_s || (~flag_s && flag_o)) ? jump_addr : incremented;
+                    JL: addr <= flag_s ? jump_addr : incremented;
                     default: addr <= incremented;
                 endcase
             else

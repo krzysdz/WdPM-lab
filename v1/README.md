@@ -143,7 +143,7 @@ Jump if accumulator is not 0.
 Code: `1011`\
 Assembly: `JL x`
 
-Jump if the result of previous operation was negative (sign bit is 1 or there was an overflow and sign bit is 0).
+Jump if the sign flag is set.
 
 #### ST
 

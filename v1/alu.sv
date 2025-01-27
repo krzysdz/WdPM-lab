@@ -28,8 +28,11 @@ module alu #(
         endcase
     end
 
-    // Top 2 bits of op are 0 for addition and subtraction, tmp[WIDTH] is carry out
-    assign co = (op[2:1] == 2'b00) ? tmp[WIDTH] : 0;
-    assign ov = (op[2:1] != 2'b00 || in_a[WIDTH-1] ^ in_b[WIDTH-1]) ? 0 : in_a[WIDTH-1] ^ tmp[WIDTH-1];
+    // Top 2 bits of op are 01 for addition and subtraction, tmp[WIDTH] is carry out
+    assign co = (op[2:1] == 2'b01) ? tmp[WIDTH] : 0;
+    // Overflow:
+    // - addition, a and b have same sign, result has different
+    // - subtraction, a and b have different signs, result has different from a (a-b=a+(-b))
+    assign ov = (op[2:1] != 2'b01 || in_a[WIDTH-1] ^ in_b[WIDTH-1] ^ op[0]) ? 0 : in_a[WIDTH-1] ^ tmp[WIDTH-1];
 endmodule
 `endif

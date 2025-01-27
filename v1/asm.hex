@@ -1,40 +1,36 @@
-C407 // LD R7 ; load a
-F005 // ST R5 ; save a in R5
-// ; TEST - do random things to memory to prevent some optimizations
-30AB // ST @0xAB ; save a somewhere in memory (constant address)
-B005 // ST [R5] ; save somewhere random
-B407 // CHB [R7] ; randomly change bank
-8407 // LD [R7] ; perform random memory load
-// ; END TEST
-C407 // LD R7 ; load b
-F006 // ST R6 ; save b in R6
-6413 // JZ pre_end ; b == 0 => end
-F004 // ST R4 ; use R4 as temp, t = b
-F002 // ST R2 ; arg2 = b
-C405 // LD R5
-F001 // ST R1 ; arg1 = a
-7815 // CALL mod ; acc = mod(a, b)
-F006 // ST R6 ; b = mod(a, b)
-C404 // LD R4
-F005 // ST R5 ; a = t
-C406 // LD R6 ; load b to acc
-6008 // JMP loop_gcd
-C405 // LD R5 ; load result to acc
-6014 // JMP end ; final infinite loop
-// ; function u8 mod(u8 a @ R1, u8 b @ R2)
-// ; ACC = R1 % R2
-C401 // LD R1
-5800 // OR #0 ; clear carry flag
-CC02 // SUB R2
-641D // JZ mod_end ; a ≡ 0 (mod b)
-6C1B // JL mod_pend ; a ≡ acc + b (mod b) - acc is negative, add R2 to get result
-6016 // JMP mod_loop
-5800 // OR #0 ; clear carry flag
-C802 // ADD R2
-3C00 // RET
-0000
-0000
-0000
+C407 // LD R7
+B007 // ST [R7]
+8407 // LD [R7]
+6408 // JZ t2
+44C8 // LD  #200
+4CDC // SUB #220
+6C08 // JL  t2 ; should jump
+0000 // NOP
+44C8 // LD  #200
+4CB4 // SUB #180
+6C0C // JL  t3 ; should not jump
+0000 // NOP
+44F6 // LD  #-10
+4CFB // SUB #-5
+6C10 // JL  t4 ; ?? - jumps, but what should it do?
+0000 // NOP
+44F6 // LD  #-10
+4CF1 // SUB #-15
+6C14 // JL  t5 ; opposite to t3
+0000 // NOP
+449C // LD  #-100
+4CD8 // SUB #-40
+6C18 // JL  t6 ; should be same as t3
+0000 // NOP
+449C // LD  #-100
+4C28 // SUB #40
+6C1C // JL  t7 ; opposite to t5/t3
+0000 // NOP
+4464 // LD  #100
+4828 // ADD #40
+449C // LD  #-100
+48D8 // ADD #-40
+6020 // JMP e
 0000
 0000
 0000

@@ -1,0 +1,3 @@
+[submodule "WdWF/cpu-src"]
+	path = WdWF/cpu-src
+	url = https://github.com/rzetelnyStudent/JOS_2

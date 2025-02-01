@@ -1,3 +1,7 @@
 [submodule "WdWF/cpu-src"]
 	path = WdWF/cpu-src
 	url = https://github.com/rzetelnyStudent/JOS_2
+[submodule "WdWF/uvm"]
+	path = WdWF/uvm
+	url = https://github.com/antmicro/uvm-verilator
+	branch = current-patches-deprecated-api

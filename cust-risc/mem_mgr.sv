@@ -7,24 +7,24 @@ module mem_mgr #(
     parameter longint unsigned MEM_WORDS = 'h1000,
     parameter int BYTES = WIDTH / 8
 ) (
-    input clk,
-    input rst,
+    input logic clk,
+    input logic rst,
     // Write port
-    input [WIDTH-1:0] wr_addr,
-    input we,
-    input [2:0] wr_bytes, // 0 = 1 byte, 1 = 2 bytes, 2 = 4 bytes, 3 = 8 bytes, 4 = 16 bytes
-    input [WIDTH-1:0] wr_data,
-    output wr_misaligned,
+    input logic [WIDTH-1:0] wr_addr,
+    input logic we,
+    input logic [2:0] wr_bytes, // 0 = 1 byte, 1 = 2 bytes, 2 = 4 bytes, 3 = 8 bytes, 4 = 16 bytes
+    input logic [WIDTH-1:0] wr_data,
+    output logic wr_misaligned,
     // Read port
-    input [WIDTH-1:0] rd_addr,
-    input re,
-    input [2:0] rd_bytes,
-    input rd_unsigned,
-    output [WIDTH-1:0] rd_data,
-    output rd_misaligned,
+    input logic [WIDTH-1:0] rd_addr,
+    input logic re,
+    input logic [2:0] rd_bytes,
+    input logic rd_unsigned,
+    output logic [WIDTH-1:0] rd_data,
+    output logic rd_misaligned,
     // Instruction read port
-    input [WIDTH-1:0] inst_addr,
-    output [WIDTH-1:0] inst_data
+    input logic [WIDTH-1:0] inst_addr,
+    output logic [WIDTH-1:0] inst_data
 );
     initial assert (WIDTH % 8 == 0 && BYTES * 8 == WIDTH);
     initial assert (WIDTH <= 128);
@@ -156,7 +156,7 @@ module mem_mgr #(
                 delayed_wr_addr <= aligned_wr_addr;
                 delayed_wr_data <= aligned_wr_data;
             end
-            if (rd) begin
+            if (re) begin
                 read_out_bytes <= rd_bytes;
                 read_out_shift <= align_rd_shift;
                 read_out_unsigned <= rd_unsigned;

@@ -19,7 +19,7 @@ module reg_file #(
     assign rs1_data = rs1 == 0 ? 0 : registers[rs1];
     assign rs2_data = rs2 == 0 ? 0 : registers[rs2];
 
-    always_ff @(posedge clk, posedge rst) begin
+    always_ff @(posedge clk) begin
         if (rst) begin
             for (int i = 1; i < 32; i += 1)
                 registers[i] <= 0;

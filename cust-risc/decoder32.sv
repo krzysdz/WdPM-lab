@@ -38,7 +38,7 @@ module decoder32 (
 );
     logic[6:0] opcode = inst[6:0];
     logic[2:0] funct3 = inst[14:12];
-    logic[3:0] f7_imm = inst[31:25];
+    logic[6:0] f7_imm = inst[31:25];
     logic[31:0] imm_i = {{20{inst[31]}}, inst[31:20]};
     logic[31:0] imm_s = {{20{inst[31]}}, inst[31:25], inst[11:7]};
     logic[31:0] imm_b = {{19{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};

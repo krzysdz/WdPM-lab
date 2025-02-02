@@ -20,8 +20,8 @@ module core (
     // (2) internal
     logic[4:0] s2i_rs1;
     logic[4:0] s2i_rs2;
-    logic[4:0] s2i_rs1_data;
-    logic[4:0] s2i_rs2_data;
+    logic[Width-1:0] s2i_rs1_data;
+    logic[Width-1:0] s2i_rs2_data;
     logic[4:0] s2i_rd;
     logic s2i_rd_we;
     alu_op_t s2i_alu_op;
@@ -41,8 +41,8 @@ module core (
     logic[Width-1:0] s2_pc;
     logic[4:0] s2_rs1;
     logic[4:0] s2_rs2;
-    logic[4:0] s2_rs1_data;
-    logic[4:0] s2_rs2_data;
+    logic[Width-1:0] s2_rs1_data;
+    logic[Width-1:0] s2_rs2_data;
     logic[4:0] s2_rd;
     logic s2_rd_we;
     alu_op_t s2_alu_op;
@@ -97,7 +97,7 @@ module core (
         .pc(s1i_pc));
     decoder32 decoder(
         .inst(s1_inst),
-        .rs1(s2i_rs1), .rs2(s2i_rs2), .rd(s2i_rd), .rd_we(s2_rd_we),
+        .rs1(s2i_rs1), .rs2(s2i_rs2), .rd(s2i_rd), .rd_we(s2i_rd_we),
         .alu_op(s2i_alu_op), .imm(s2i_imm), .use_imm(s2i_use_imm),
         .mem_rd(s2i_mem_rd), .mem_rd_unsigned(s2i_mem_rd_unsigned), .mem_wr(s2i_mem_wr), .mem_bytes(s2i_mem_bytes),
         .branch_not(s2i_branch_not), .branch_eq(s2i_branch_eq), .branch(s2i_branch), .jump_link(s2i_jump_link), .jump_alu(s2i_jump_alu),
@@ -140,6 +140,7 @@ module core (
     assign s4f_rd_data = s3_mem_rd ? s3_mem_out : s3_reg_output;
 
     always_ff @(posedge clk) begin
+        // Registers that need reset
         if (rst) begin
             // s1_pc <= 0;
             // s2_pc <= 0;
@@ -167,44 +168,47 @@ module core (
             s3_jump <= 0;
             // s3_rd <= 0;
             s3_rd_we <= 0;
-            // s3_mem_rd <= 0;
+            s3_mem_rd <= 0;
             s3_mem_wr <= 0;
             // s3_mem_bytes <= 0;
             // s3_mem_wr_data <= 0;
         end else begin
-            // Stage 1 (instruction fetch) output registers
-            s1_pc <= s1i_pc;
             // Stage 2 (decode+operand fetch) output registers
-            s2_pc <= s1_pc;
-            s2_rs1 <= s2i_rs1;
-            s2_rs2 <= s2i_rs2;
-            s2_rs1_data <= s2i_rs1_data;
-            s2_rs2_data <= s2i_rs2_data;
-            s2_rd <= s2i_rd;
             s2_rd_we <= s2i_rd_we;
-            s2_alu_op <= s2i_alu_op;
-            s2_imm <= s2i_imm;
-            s2_use_imm <= s2i_use_imm;
             s2_mem_rd <= s2i_mem_rd;
-            s2_mem_rd_unsigned <= s2i_mem_rd_unsigned;
             s2_mem_wr <= s2i_mem_wr;
-            s2_mem_bytes <= s2i_mem_bytes;
-            s2_branch_not <= s2i_branch_not;
-            s2_branch_eq <= s2i_branch_eq;
             s2_branch <= s2i_branch;
             s2_jump_link <= s2i_jump_link;
-            s2_jump_alu <= s2i_jump_alu;
-            s2_add_to_pc <= s2i_add_to_pc;
             // Stage 3 (execute) output registers
-            s3_reg_output <= s3i_reg_output;
-            s3_jump_addr <= s3i_jump_addr;
             s3_jump <= s3i_jump;
-            s3_rd <= s2_rd;
             s3_rd_we <= s2_rd_we;
             s3_mem_rd <= s2_mem_rd;
             s3_mem_wr <= s2_mem_wr;
-            s3_mem_bytes <= s2_mem_bytes;
-            s3_mem_wr_data <= s3i_rs2_data;
         end
+        // Registers that don't need reset (have no observable effects)
+        // Stage 1 (instruction fetch) output registers
+        s1_pc <= s1i_pc;
+        // Stage 2 (decode+operand fetch) output registers
+        s2_pc <= s1_pc;
+        s2_rs1 <= s2i_rs1;
+        s2_rs2 <= s2i_rs2;
+        s2_rs1_data <= s2i_rs1_data;
+        s2_rs2_data <= s2i_rs2_data;
+        s2_rd <= s2i_rd;
+        s2_alu_op <= s2i_alu_op;
+        s2_imm <= s2i_imm;
+        s2_use_imm <= s2i_use_imm;
+        s2_mem_rd_unsigned <= s2i_mem_rd_unsigned;
+        s2_mem_bytes <= s2i_mem_bytes;
+        s2_branch_not <= s2i_branch_not;
+        s2_branch_eq <= s2i_branch_eq;
+        s2_jump_alu <= s2i_jump_alu;
+        s2_add_to_pc <= s2i_add_to_pc;
+        // Stage 3 (execute) output registers
+        s3_reg_output <= s3i_reg_output;
+        s3_jump_addr <= s3i_jump_addr;
+        s3_rd <= s2_rd;
+        s3_mem_bytes <= s2_mem_bytes;
+        s3_mem_wr_data <= s3i_rs2_data;
     end
 endmodule

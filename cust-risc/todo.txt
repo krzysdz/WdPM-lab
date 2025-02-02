@@ -1,4 +1,3 @@
-- fix endianness
 - fix jumps and branches
 - handle unaligned memory access
 - check if it can be simulated

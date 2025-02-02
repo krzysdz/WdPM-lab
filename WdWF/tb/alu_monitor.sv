@@ -20,18 +20,22 @@ class alu_monitor extends uvm_monitor;
     virtual task run_phase(uvm_phase phase);
         forever begin
             @(posedge vif.clk);
-            #1; // This delay is necessary for some reason, or data from before posedge will be read from registers through the interface
-
+            // Inputs are set at negedge and can be read at posedge
             trans_collected.alu_ce = vif.alu_ce;
             trans_collected.cy_ce = vif.cy_ce;
             trans_collected.opcode = vif.opcode;
-            trans_collected.acc = vif.acc;
-            trans_collected.cy = vif.cy;
             trans_collected.register = vif.register;
             trans_collected.argument = vif.argument;
-            // These combinational outputs are synchronized by wrapper in top
+
+            #1; // This delay is necessary, or data from before posedge will be read from registers
+            // These combinational outputs are synchronized on posedge by wrapper in top
             trans_collected.jmp_ce_temp = vif.jmp_ce_temp;
             trans_collected.jmp_addr_temp = vif.jmp_addr_temp;
+            @(negedge vif.clk);
+            #1; // Make sure that the new inputs are there
+            // These are supposed to be registered and should not change after new inputs are provided
+            trans_collected.acc = vif.acc;
+            trans_collected.cy = vif.cy;
 
             item_collected_port.write(trans_collected);
         end

@@ -36,8 +36,6 @@ class alu_driver extends uvm_driver #(alu_seq_item);
         // end else begin
         //     vif.register = req.register;
         // end
-
-        // Make sure the monitor can read the transaction and send it to scoreboard before $finish
         @(posedge vif.clk) #1;
     endtask
 endclass

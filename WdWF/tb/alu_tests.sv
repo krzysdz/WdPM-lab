@@ -15,9 +15,14 @@ class alu_base_test extends uvm_test;
         env = alu_env::type_id::create("env", this);
     endfunction
 
-    virtual function void end_of_elaboration();
+    virtual function void end_of_elaboration_phase(uvm_phase phase);
+        uvm_phase run_phase;
         // Print topology
         print();
+        // Make sure we don't finish too early (dirty workaround)
+        // Add a bit over half cycle - driver waits until posedge+1, this will end at negedge+2 - 1 time unit after monitor read of registered data (negedge+2)
+        run_phase = phase.find(uvm_run_phase::get(), 0);
+        run_phase.phase_done.set_drain_time(this, 6ns);
     endfunction
 
     function void report_phase(uvm_phase phase);

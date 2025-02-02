@@ -1,1 +1,6 @@
 alu_tb-sim/
+xsim.dir/
+*.pb
+*.jou
+*.log
+testname.txt

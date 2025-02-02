@@ -8,20 +8,14 @@ module mem_mgr #(
     parameter int BYTES = WIDTH / 8
 ) (
     input logic clk,
-    input logic rst,
-    // Write port
-    input logic [WIDTH-1:0] wr_addr,
+    // Data port
+    input logic [WIDTH-1:0] addr,
     input logic we,
-    input logic [2:0] wr_bytes, // 0 = 1 byte, 1 = 2 bytes, 2 = 4 bytes, 3 = 8 bytes, 4 = 16 bytes
-    input logic [WIDTH-1:0] wr_data,
-    output logic wr_misaligned,
-    // Read port
-    input logic [WIDTH-1:0] rd_addr,
-    input logic re,
-    input logic [2:0] rd_bytes,
+    input logic [2:0] bytes, // 0 = 1 byte, 1 = 2 bytes, 2 = 4 bytes, 3 = 8 bytes, 4 = 16 bytes
     input logic rd_unsigned,
+    input logic [WIDTH-1:0] wr_data,
     output logic [WIDTH-1:0] rd_data,
-    output logic rd_misaligned,
+    output logic misaligned,
     // Instruction read port
     input logic [WIDTH-1:0] inst_addr,
     output logic [WIDTH-1:0] inst_data
@@ -30,104 +24,41 @@ module mem_mgr #(
     initial assert (WIDTH <= 128);
     localparam int AddrAlign = $clog2(BYTES);
 
-    // Combinational outputs
-    logic [WIDTH-1:0] addr_a;
-    logic [WIDTH-1:0] data_in_a;
-    logic [BYTES-1:0] we_a; // byte enables
     // Combinational intermediates
-    logic [WIDTH-1:0] aligned_wr_addr;
+    logic [WIDTH-1:0] aligned_addr;
     logic [WIDTH-1:0] aligned_wr_data;
     logic [BYTES-1:0] aligned_wr_bytes;
-    logic [AddrAlign-1:0] align_wr_shift;
-    logic [WIDTH-1:0] aligned_rd_addr;
-    logic [AddrAlign-1:0] align_rd_shift;
-    logic update_delay_registers;
-    logic clear_delay_registers;
+    logic [AddrAlign-1:0] align_shift;
     // RAM output
     logic [WIDTH-1:0] data_a;
 
     // Registers
-    logic [WIDTH-1:0] delayed_wr_addr;
-    logic [WIDTH-1:0] delayed_wr_data;
-    logic [BYTES-1:0] delayed_wr_bytes;
     logic [AddrAlign-1:0] read_out_shift;
     logic [2:0] read_out_bytes;
     logic read_out_unsigned;
 
-    // Make sure that there is no cached write when a new write appears
-    assert property (@(posedge clk) !(|delayed_wr_bytes && |we_a));
     // Make sure that wr/rd_bytes does not suggest mask wider than BYTES
     // TODO: Detect and prevent this in decoder
-    assert property (@(posedge clk) wr_bytes <= AddrAlign);
-    assert property (@(posedge clk) rd_bytes <= AddrAlign);
+    assert property (@(posedge clk) bytes <= AddrAlign);
 
     // Address aligned to word size
-    assign aligned_wr_addr = {wr_addr[WIDTH-1:AddrAlign], {AddrAlign{1'b0}}};
-    assign aligned_rd_addr = {rd_addr[WIDTH-1:AddrAlign], {AddrAlign{1'b0}}};
+    assign aligned_addr = {addr[WIDTH-1:AddrAlign], {AddrAlign{1'b0}}};
     // Write data aligned correctly
-    assign aligned_wr_data = wr_data << align_wr_shift;
+    assign aligned_wr_data = wr_data << align_shift;
 
     // Byte enables at correct positions
-    byte_enable_decoder #(.BYTES(BYTES)) bed_wr(.bytes(wr_bytes), .addr(wr_addr), .byte_enables(aligned_wr_bytes), .shift(align_wr_shift));
-    byte_enable_decoder #(.BYTES(BYTES)) bed_rd(.bytes(rd_bytes), .addr(rd_addr), .byte_enables(), .shift(align_rd_shift));
+    byte_enable_decoder #(.BYTES(BYTES)) bed_wr(.bytes(bytes), .addr(addr), .byte_enables(aligned_wr_bytes), .shift(align_shift));
 
     // Misaligned signals
-    alignment_checker #(.WIDTH(WIDTH)) align_wr(.bytes(wr_bytes), .addr(wr_addr), .enable(we), .misaligned(wr_misaligned));
-    alignment_checker #(.WIDTH(WIDTH)) align_rd(.bytes(rd_bytes), .addr(rd_addr), .enable(re), .misaligned(rd_misaligned));
+    alignment_checker #(.WIDTH(WIDTH)) align(.bytes(bytes), .addr(addr), .enable(we), .misaligned(misaligned));
 
-    always_comb begin
-        we_a = 0;
-        data_in_a = {WIDTH{1'bx}};
-        addr_a = {WIDTH{1'bx}};
-        update_delay_registers = 0;
-        clear_delay_registers = 0;
-        // Cases:
-        // 1. only write
-        // 2. read & write:
-        //    a) read of data being written - handled by write first RAM
-        //    b) independent read
-        // 3. only read:
-        //    a) no cached write
-        //    b) delayed write allows eliminating read (same aligned address) - handled by write first RAM
-        //    c) read independent of delayed write
-        // 4. no request:
-        //    a) delayed write
-        //    b) nothing to do
-        if (!re && we) begin // 1. write only
-            addr_a = wr_addr;
-            data_in_a = aligned_wr_data;
-            we_a = aligned_wr_bytes;
-        end else if (re && we) begin // 2. read & write
-            addr_a = rd_addr;
-            if (wr_addr == rd_addr) begin // 2. a) same (aligned) address - write & read
-                data_in_a = aligned_wr_data;
-                we_a = aligned_wr_bytes;
-            end else begin // 2. b) different addresses - read now, delay write
-                update_delay_registers = 1;
-            end
-        end else if (re && !we) begin // 3. read only
-            addr_a = rd_addr;
-            if (delayed_wr_bytes && delayed_wr_addr == rd_addr) begin // same address as delayed write - write & read
-                data_in_a = delayed_wr_data;
-                we_a = delayed_wr_bytes;
-                clear_delay_registers = 1;
-            end
-        end else if (!re && !we) begin // 4. no request
-            if (delayed_wr_bytes) begin // 4. a) perform delayed write
-                addr_a = delayed_wr_addr;
-                data_in_a = delayed_wr_data;
-                we_a = delayed_wr_bytes;
-                clear_delay_registers = 1;
-            end
-        end
-    end
 
     ram #(.BYTES(BYTES), .MAX_ADDR(MEM_WORDS)) memory(
         .clk(clk),
         // Port A
-        .addr_a(addr_a),
-        .we_a(we_a),
-        .data_in_a(data_in_a),
+        .addr_a(aligned_addr),
+        .we_a(we ? aligned_wr_bytes : 0),
+        .data_in_a(aligned_wr_data),
         .data_a(data_a),
         // Port B
         .addr_b(inst_addr),
@@ -148,20 +79,9 @@ module mem_mgr #(
     end
 
     always_ff @(posedge clk) begin
-        if (rst || clear_delay_registers) begin
-            delayed_wr_bytes <= 0;
-        end else begin
-            if (update_delay_registers) begin
-                delayed_wr_bytes <= aligned_wr_bytes;
-                delayed_wr_addr <= aligned_wr_addr;
-                delayed_wr_data <= aligned_wr_data;
-            end
-            if (re) begin
-                read_out_bytes <= rd_bytes;
-                read_out_shift <= align_rd_shift;
-                read_out_unsigned <= rd_unsigned;
-            end
-        end
+        read_out_bytes <= bytes;
+        read_out_shift <= align_shift;
+        read_out_unsigned <= rd_unsigned;
     end
 endmodule
 

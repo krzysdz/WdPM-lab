@@ -78,18 +78,15 @@ module core (
     logic[4:0] s3_rd;
     logic s3_rd_we;
     logic s3_mem_rd;
-    logic s3_mem_wr;
-    logic[2:0] s3_mem_bytes;
-    logic[Width-1:0] s3_mem_wr_data;
 
     // Write back (4)
     // (4) forward to (3)
     logic[Width-1:0] s4f_rd_data; // forwarded rd val from mux (mem load or comb)
 
     mem_mgr #(.WIDTH(Width)) main_mem(
-        .clk(clk), .rst(rst),
-        .wr_addr(s3_reg_output), .we(s3_mem_wr), .wr_bytes(s3_mem_bytes), .wr_data(s3_mem_wr_data), .wr_misaligned(),
-        .rd_addr(s3i_alu_out), .re(s2_mem_rd), .rd_bytes(s2_mem_bytes), .rd_unsigned(s2_mem_rd_unsigned), .rd_data(s3_mem_out), .rd_misaligned(),
+        .clk(clk),
+        .addr(s3i_alu_out), .we(s2_mem_wr), .bytes(s2_mem_bytes), .rd_unsigned(s2_mem_rd_unsigned),
+        .wr_data(s3i_rs2_data), .rd_data(s3_mem_out), .misaligned(),
         .inst_addr(s1i_pc), .inst_data(s1_inst));
     program_counter #(.WIDTH(Width)) pc(
         .clk(clk), .rst(rst),
@@ -169,9 +166,6 @@ module core (
             // s3_rd <= 0;
             s3_rd_we <= 0;
             s3_mem_rd <= 0;
-            s3_mem_wr <= 0;
-            // s3_mem_bytes <= 0;
-            // s3_mem_wr_data <= 0;
         end else begin
             // Stage 2 (decode+operand fetch) output registers
             s2_rd_we <= s2i_rd_we;
@@ -183,7 +177,6 @@ module core (
             s3_jump <= s3i_jump;
             s3_rd_we <= s2_rd_we;
             s3_mem_rd <= s2_mem_rd;
-            s3_mem_wr <= s2_mem_wr;
         end
         // Registers that don't need reset (have no observable effects)
         // Stage 1 (instruction fetch) output registers
@@ -208,7 +201,5 @@ module core (
         s3_reg_output <= s3i_reg_output;
         s3_jump_addr <= s3i_jump_addr;
         s3_rd <= s2_rd;
-        s3_mem_bytes <= s2_mem_bytes;
-        s3_mem_wr_data <= s3i_rs2_data;
     end
 endmodule

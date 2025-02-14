@@ -28,9 +28,11 @@ WARNING_ARGS += -Wno-lint \
 	-Wno-style \
 	-Wno-SYMRSVDWORD \
 	-Wno-IGNOREDRETURN \
-	-Wno-ZERODLY
+	-Wno-ZERODLY \
+	-Wno-WIDTH \
+	-Wno-CASTCONST
 
-$(SIM_DIR)/$(SIM_NAME).mk: $(wildcard tb/*.sv)
+$(SIM_DIR)/$(SIM_NAME).mk: $(wildcard tb/*.sv tb/*.svh)
 	$(VERILATOR) --cc --exe --main --timing -Mdir $(SIM_DIR) \
 	${COMPILE_ARGS} ${EXTRA_ARGS} \
 	${VERILOG_DEFINE_FILES} \

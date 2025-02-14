@@ -1,4 +1,7 @@
 class alu_monitor extends uvm_monitor;
+`ifdef NO_DRAIN_TIME
+    bit finished;
+`endif
     virtual alu_if vif;
     uvm_analysis_port #(alu_seq_item) item_collected_port;
     alu_seq_item trans_collected;
@@ -15,6 +18,9 @@ class alu_monitor extends uvm_monitor;
         super.build_phase(phase);
         if (!uvm_config_db#(virtual alu_if)::get(this, "", "vif", vif))
             `uvm_fatal("NOVIF", {"virtual interface must be set for: ", get_full_name(), ".vif"});
+`ifdef NO_DRAIN_TIME
+        finished = 0;
+`endif
     endfunction
 
     virtual task run_phase(uvm_phase phase);
@@ -40,4 +46,29 @@ class alu_monitor extends uvm_monitor;
             item_collected_port.write(trans_collected);
         end
     endtask
+
+`ifdef NO_DRAIN_TIME
+`ifndef VERILATOR
+    // This is probably better than set_drain_time, because it'll work when clock period changes, but in Verilator the simulation does not end
+    function void phase_ready_to_end(uvm_phase phase);
+        if (phase.is(uvm_run_phase::get()) && !finished) begin
+            phase.raise_objection(this);
+            fork
+                begin
+                    wait_end();
+                    phase.drop_objection(this);
+                end
+            join_none
+        end
+    endfunction
+
+    task wait_end();
+        @(negedge vif.clk);
+        #1;
+        finished = 1;
+    endtask
+`else // NO_DRAIN_TIME && VERILATOR
+    $fatal(0, "Verilator code does not work with NO_DRAIN_TIME");
+`endif // !VERILATOR
+`endif // NO_DRAIN_TIME
 endclass

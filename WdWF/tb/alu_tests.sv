@@ -1,3 +1,4 @@
+`include "macros.svh"
 `include "alu_env.sv"
 
 class alu_base_test extends uvm_test;
@@ -16,13 +17,18 @@ class alu_base_test extends uvm_test;
     endfunction
 
     virtual function void end_of_elaboration_phase(uvm_phase phase);
+`ifndef NO_DRAIN_TIME
         uvm_phase run_phase;
+`endif
         // Print topology
         print();
+`ifndef NO_DRAIN_TIME
         // Make sure we don't finish too early (dirty workaround)
         // Add a bit over half cycle - driver waits until posedge+1, this will end at negedge+2 - 1 time unit after monitor read of registered data (negedge+2)
+        // A better solution is in `alu_monitor`, but it does not work with Verilator
         run_phase = phase.find(uvm_run_phase::get(), 0);
-        run_phase.phase_done.set_drain_time(this, 6ns);
+        run_phase.get_objection().set_drain_time(this, 6ns);
+`endif
     endfunction
 
     function void report_phase(uvm_phase phase);
@@ -61,7 +67,7 @@ class random_loop_test extends alu_base_test;
         super.run_phase(phase);
 
         phase.raise_objection(this);
-        assert(seq.randomize());
+        `RAND_OR_FAIL(seq)
         seq.start(env.agent.sequencer);
         phase.drop_objection(this);
     endtask
@@ -110,7 +116,7 @@ class cy_clr_any_test extends alu_base_test;
         super.run_phase(phase);
 
         phase.raise_objection(this);
-        assert(seq.randomize());
+        `RAND_OR_FAIL(seq)
         seq.start(env.agent.sequencer);
         phase.drop_objection(this);
     endtask
@@ -159,7 +165,7 @@ class jz_nz_test extends alu_base_test;
         super.run_phase(phase);
 
         phase.raise_objection(this);
-        assert(seq.randomize());
+        `RAND_OR_FAIL(seq)
         seq.start(env.agent.sequencer);
         phase.drop_objection(this);
     endtask
@@ -232,7 +238,7 @@ class add_set_clr_cy_test extends alu_base_test;
         super.run_phase(phase);
 
         phase.raise_objection(this);
-        assert(seq.randomize());
+        `RAND_OR_FAIL(seq)
         seq.start(env.agent.sequencer);
         phase.drop_objection(this);
     endtask
@@ -257,7 +263,7 @@ class sub_set_clr_cy_test extends alu_base_test;
         super.run_phase(phase);
 
         phase.raise_objection(this);
-        assert(seq.randomize());
+        `RAND_OR_FAIL(seq)
         seq.start(env.agent.sequencer);
         phase.drop_objection(this);
     endtask

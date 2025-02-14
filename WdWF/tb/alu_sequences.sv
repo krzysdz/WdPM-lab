@@ -23,7 +23,7 @@ class ld_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `LD;
         finish_item(req);
 `endif
@@ -43,7 +43,7 @@ class clear_acc_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `LD;
         req.register = 8'd0;
         finish_item(req);
@@ -64,7 +64,7 @@ class add_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `ADD;
         finish_item(req);
 `endif
@@ -84,7 +84,7 @@ class sub_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `SUB;
         finish_item(req);
 `endif
@@ -104,7 +104,7 @@ class st_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `ST;
         finish_item(req);
 `endif
@@ -124,7 +124,7 @@ class and_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `AND;
         finish_item(req);
 `endif
@@ -144,7 +144,7 @@ class or_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `OR;
         finish_item(req);
 `endif
@@ -164,7 +164,7 @@ class xor_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `XOR;
         finish_item(req);
 `endif
@@ -184,7 +184,7 @@ class nop_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `NOP;
         finish_item(req);
 `endif
@@ -204,7 +204,7 @@ class not_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `NOT;
         finish_item(req);
 `endif
@@ -224,7 +224,7 @@ class jmp_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `JMP;
         finish_item(req);
 `endif
@@ -244,7 +244,7 @@ class jz_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `JZ;
         finish_item(req);
 `endif
@@ -273,13 +273,13 @@ class add_set_cy_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `LD;
         req.register = num;
         finish_item(req);
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `ADD;
         req.register = num2;
         finish_item(req);
@@ -309,13 +309,13 @@ class sub_set_cy_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `LD;
         req.register = num;
         finish_item(req);
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `SUB;
         req.register = num2;
         finish_item(req);
@@ -342,7 +342,7 @@ class t_set_clr_cy_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = op;
         finish_item(req);
 `endif
@@ -418,7 +418,7 @@ class t_jz_nz_sequence extends uvm_sequence #(alu_seq_item);
 `else
         req = alu_seq_item::type_id::create("req");
         start_item(req);
-        assert(req.randomize());
+        `RAND_OR_FAIL(req)
         req.opcode = `LD;
         req.register = num;
         finish_item(req);

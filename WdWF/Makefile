@@ -1,6 +1,6 @@
 all: simulate
 
-NPROC = $$((`nproc`-1))
+NPROC = $(shell nproc)
 
 # Verilator path
 VERILATOR := verilator
@@ -20,7 +20,7 @@ VERILOG_INCLUDE_DIRS = ./cpu-src/Projektowanie_Lab ./tb ${UVM_ROOT}/src
 SIM_NAME ?= alu_tb
 SIM_DIR := ${SIM_NAME}-sim
 TEMPFILE := $(shell mktemp)
-COMPILE_ARGS += -DUVM_NO_DPI
+COMPILE_ARGS += --output-groups $(NPROC) -DUVM_NO_DPI
 COMPILE_ARGS += --prefix $(SIM_NAME) -o $(SIM_NAME)
 COMPILE_ARGS += $(addprefix +incdir+, $(VERILOG_INCLUDE_DIRS))
 EXTRA_ARGS += --timescale 1ns/1ps --error-limit 100
